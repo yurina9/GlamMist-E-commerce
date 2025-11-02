@@ -14,7 +14,7 @@ const PlaceOrder = () => {
     navigate,
     backendUrl,
     token,
-    cartItems, // Ensure this matches the key used in ShopContext
+    cartItems,
     getCartAmount,
     delivery_fee,
     products,
@@ -33,14 +33,14 @@ const PlaceOrder = () => {
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setFormData((data) => ({ ...data, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Check if all required fields are filled
+    // Validate form fields
     if (Object.values(formData).some((field) => field.trim() === "")) {
       toast.error("Please fill in all required fields!");
       setLoading(false);
@@ -48,71 +48,46 @@ const PlaceOrder = () => {
     }
 
     try {
-      let orderItems = [];
+      // Prepare order items
+      const orderItems = [];
+      for (const itemId in cartItems) {
+        const quantity = cartItems[itemId];
+        if (quantity > 0) {
+          const product = products.find((p) => p._id === itemId);
+          if (product) {
+            orderItems.push({ ...product, quantity });
+          }
+        }
+      }
 
-      // Log cartItem and products to verify their structure
-      console.log("Cart Items:", cartItems); // Ensure this matches the key used in ShopContext
-      console.log("Products:", products);
-
-      // Ensure cartItems is defined and not empty
-      if (!cartItems || Object.keys(cartItems).length === 0) {
+      if (orderItems.length === 0) {
         toast.error("No items in the cart.");
         setLoading(false);
         return;
       }
 
-      // Loop through cartItems and create the orderItems array
-      for (const itemId in cartItems) {
-        for (const size in cartItems[itemId]) {
-          if (cartItems[itemId][size]) {
-            const product = products.find((p) => p._id === itemId);
-            if (product) {
-              const itemInfo = {
-                ...product,
-                size,
-                quantity: cartItems[itemId][size],
-              };
-              orderItems.push(itemInfo);
-            }
-          }
-        }
-      }
-
-      // Log the order items before sending them to the backend
-      console.log("Order Items:", orderItems);
-
-      // Check if there are any items to order
-      if (orderItems.length === 0) {
-        toast.error("No items in the order.");
-        setLoading(false);
-        return;
-      }
-
-      // Prepare order data
-      let orderData = {
+      // Order data to send
+      const orderData = {
         address: formData,
         items: orderItems,
         amount: getCartAmount() + delivery_fee,
         paymentMethod: method,
       };
 
-      // Send order data to backend
-      const response = await axios.post(
-        `${backendUrl}/api/order/place`,
-        orderData,
-        { headers: { token } }
-      );
+      // Send order to backend
+      const response = await axios.post(`${backendUrl}/api/order/place`, orderData, {
+        headers: { token },
+      });
 
-      // Handle response from backend
       if (response.data.success) {
-        setCartItem({}); // Clear the cart
+        setCartItem({}); // Clear cart
         toast.success("Order placed successfully!");
-        navigate("/orders");
+        navigate("/orders"); // Redirect to orders page
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to place order.");
       }
     } catch (error) {
-      console.error("Error processing order:", error);
+      console.error("Error placing order:", error);
       toast.error("Failed to place order. Please try again.");
     } finally {
       setLoading(false);
@@ -124,6 +99,7 @@ const PlaceOrder = () => {
       onSubmit={handleSubmit}
       className="flex flex-col sm:flex-row justify-between gap-8 pt-5 sm:pt-14 min-h-[80vh] border-t px-4"
     >
+      {/* Delivery Information */}
       <div className="flex flex-col gap-6 sm:max-w-[480px]">
         <Title text1="Delivery" text2="INFORMATION" />
         <div className="flex gap-3">
@@ -141,8 +117,8 @@ const PlaceOrder = () => {
             value={formData.lastName}
             name="lastName"
             type="text"
-            required
             placeholder="Last Name"
+            required
             className="border border-gray-300 rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -151,8 +127,8 @@ const PlaceOrder = () => {
           value={formData.email}
           name="email"
           type="email"
-          required
           placeholder="Email Address"
+          required
           className="border border-gray-300 rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
@@ -160,8 +136,8 @@ const PlaceOrder = () => {
           value={formData.address}
           name="address"
           type="text"
-          required
           placeholder="Address"
+          required
           className="border border-gray-300 rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div className="flex gap-3">
@@ -170,8 +146,8 @@ const PlaceOrder = () => {
             value={formData.city}
             name="city"
             type="text"
-            required
             placeholder="City"
+            required
             className="border border-gray-300 rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
@@ -179,8 +155,8 @@ const PlaceOrder = () => {
             value={formData.state}
             name="state"
             type="text"
-            required
             placeholder="State"
+            required
             className="border border-gray-300 rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -188,13 +164,14 @@ const PlaceOrder = () => {
           onChange={onChangeHandler}
           value={formData.phone}
           name="phone"
-          required
           type="tel"
           placeholder="Phone Number"
+          required
           className="border border-gray-300 rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
+      {/* Cart Total & Payment */}
       <div className="mt-8 w-full sm:w-1/2 lg:w-1/3">
         <CartTotal />
 
@@ -229,13 +206,12 @@ const PlaceOrder = () => {
                     />
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm font-medium mx-4">
-                    {label}
-                  </p>
+                  <p className="text-gray-500 text-sm font-medium mx-4">{label}</p>
                 )}
               </div>
             ))}
           </div>
+
           <div className="w-full text-end mt-8">
             <button
               type="submit"

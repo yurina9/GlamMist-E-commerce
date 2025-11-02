@@ -19,16 +19,16 @@ const Contact = () => {
         <div className="flex flex-col justify-center items-start gap-6">
           <p className="font-semibold text-xl text-gray-600">Our Store</p>
           <p className="text-gray-500">
-            29 Ghhattekulo <br />
+            MinBhawan <br />
             Kathmandu, NEPAL
           </p>
           <p className="text-gray-500">
             {" "}
             Tel: (977) 252-333-458 <br />
-            Email:fevercollection@gmail.com
+            Email:glammist@gmail.com
           </p>
           <p className="text-gray-600 font-semibold text-xl ">
-            Carrers at FeverCollection
+            Carrers at GlamMist
           </p>
           <p className="text-gray-500">
             Learn more about teams and job openings.

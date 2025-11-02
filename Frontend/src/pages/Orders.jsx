@@ -63,7 +63,6 @@ const Orders = () => {
               : item
           )
         );
-        // Refresh the page after updating the order status
         window.location.reload();
       }
     } catch (error) {
@@ -107,7 +106,6 @@ const Orders = () => {
                       {item.price}
                     </p>
                     <p>Quantity: {item.quantity}</p>
-                    <p>Size: {item.size}</p>
                   </div>
                   <p className="mt-2">
                     Date: <span className="text-gray-400">{new Date(item.date).toDateString()}</span>

@@ -27,7 +27,7 @@ const Footer = () => {
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
           <ul className="flex flex-col gap-1 text-gray-600">
             <li>+977-9835372272</li>
-            <li>contact.fever@gmail.com</li>
+            <li>contact.glammist@gmail.com</li>
           </ul>
         </div>
       </div>
@@ -35,7 +35,7 @@ const Footer = () => {
       <div>
         <hr />
         <p className="py-5 text-sm text-center">
-          Copyright 2025@fevercollection.com - All Rights Reserved
+          Copyright 2025@glammist.com - All Rights Reserved
         </p>
       </div>
     </div>

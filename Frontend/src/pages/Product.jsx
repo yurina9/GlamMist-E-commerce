@@ -9,34 +9,30 @@ const Product = () => {
   const { products, currency, addToCart } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
-  const [size, setSize] = useState("");
-
-  const fetchProductData = async () => {
-    products.forEach((item) => {
-      if (item._id === productId) {
-        setProductData(item);
-        setImage(item.image[0]);
-      }
-    });
-  };
 
   useEffect(() => {
-    fetchProductData();
+    const product = products.find((p) => p._id === productId);
+    if (product) {
+      setProductData(product);
+      setImage(product.image[0]);
+    }
   }, [productId, products]);
 
-  return productData ? (
-    <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
-      <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
-        {/* Product image */}
+  if (!productData) return <div className="opacity-0"></div>;
+
+  return (
+    <div className="border-t-2 pt-10">
+      <div className="flex flex-col sm:flex-row gap-12">
+        {/* Images */}
         <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full">
-            {productData.image.map((item, index) => (
+            {productData.image.map((img, idx) => (
               <img
-                onClick={() => setImage(item)}
-                src={item}
+                key={idx}
+                src={img}
                 alt="Product"
-                key={index}
-                className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer"
+                className="w-[24%] sm:w-full sm:mb-3 cursor-pointer"
+                onClick={() => setImage(img)}
               />
             ))}
           </div>
@@ -45,78 +41,23 @@ const Product = () => {
           </div>
         </div>
 
-        {/* Product info */}
+        {/* Product Info */}
         <div className="flex-1">
-          <h1 className="font-medium text-2xl mt-2">{productData.name}</h1>
-          <div className="flex items-center gap-1 mt-2">
-            {[...Array(5)].map((_, i) => (
-              <img
-                key={i}
-                src={assets.star_icon}
-                alt="Star"
-                className="w-3.5"
-              />
-            ))}
-            <p className="pl-2">(122)</p>
-          </div>
+          <h1 className="text-2xl font-medium mt-2">{productData.name}</h1>
           <p className="mt-5 text-3xl font-medium">
             {currency}
             {productData.price}
           </p>
-          <p className="mt-5 text-gray-600 leading-relaxed text-justify w-full md:w-3/4 lg:w-2/3">
+          <p className="mt-5 text-gray-600 leading-relaxed text-justify">
             {productData.description}
           </p>
 
-          <div className="flex flex-col gap-4 my-8">
-            <p className="font-semibold">Select Size</p>
-            <div className="flex gap-2">
-              {productData.sizes.map((item, index) => (
-                <button
-                  onClick={() => setSize(item)}
-                  className={`border py-2 px-4 bg-gray-100 cursor-pointer ${
-                    item === size ? "border-orange-500" : ""
-                  }`}
-                  key={index}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
           <button
-            onClick={() => addToCart(productData._id, size)}
-            className="bg-black text-white mt-2 px-8 py-3 text-sm active:bg-gray-700"
+            onClick={() => addToCart(productData._id)}
+            className="bg-black text-white mt-8 px-8 py-3 text-sm"
           >
             ADD TO CART
           </button>
-          <hr className="mt-8 sm:w-4/5" />
-          <div className="text-sm text-gray-500 mt-5 flex flex-col gap-2">
-            <p>✅ 100% Original product.</p>
-            <p>💰 Cash on delivery available.</p>
-            <p>🔄 Easy return and exchange within 7 days.</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Description and reviews section */}
-      <div className="mt-20">
-        <div className="flex gap-3">
-          <b className="border px-5 py-3 text-sm cursor-pointer">Description</b>
-          <p className="border px-5 py-3 text-sm cursor-pointer">
-            Reviews (122)
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500 leading-relaxed">
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam sint
-            voluptatem reiciendis neque quibusdam ullam cupiditate tempore
-            temporibus quo praesentium!
-          </p>
-          <p>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Molestiae
-            architecto at aut amet, hic explicabo nulla. Dicta quas eveniet
-            odio.
-          </p>
         </div>
       </div>
 
@@ -126,8 +67,6 @@ const Product = () => {
         subCategory={productData.subCategory}
       />
     </div>
-  ) : (
-    <div className="opacity-0"></div>
   );
 };
 
