@@ -3,46 +3,44 @@ import productModel from "../models/productModel.js";
 
 export const addProduct = async (req, res) => {
   try {
-    const { name, description, price, category, subCategory, bestseller } = req.body;
+    const { name, description, price, type, brand, bestseller } = req.body;
 
     const image1 = req.files?.image1?.[0];
     const image2 = req.files?.image2?.[0];
     const image3 = req.files?.image3?.[0];
     const image4 = req.files?.image4?.[0];
 
-    const images = [image1, image2, image3, image4].filter((item) => item !== undefined);
+    const images = [image1, image2, image3, image4].filter(Boolean);
 
-    let imagesUrl = await Promise.all(
+    let imageUrls = await Promise.all(
       images.map(async (item) => {
         try {
-          let result = await cloudinary.uploader.upload(item.path, {
+          const result = await cloudinary.uploader.upload(item.path, {
             resource_type: "image",
           });
           return result.secure_url;
-        } catch (uploadError) {
-          console.error("Image upload failed:", uploadError);
-          throw new Error("Failed to upload one or more images to Cloudinary");
+        } catch (err) {
+          console.error("Cloudinary upload failed:", err);
+          throw new Error("Failed to upload one or more images");
         }
       })
     );
 
-    const productData = {
+    const newProduct = new productModel({
       name,
       description,
-      category,
+      type,
+      brand,
       price: Number(price),
-      subCategory,
       bestseller: bestseller === "true",
-      image: imagesUrl,
+      image: imageUrls,
       date: Date.now(),
-    };
+    });
 
-    const product = new productModel(productData);
-    await product.save();
-
-    res.json({ success: true, message: "Product added successfully", product });
+    await newProduct.save();
+    res.json({ success: true, message: "Product added successfully", product: newProduct });
   } catch (error) {
-    console.error(error);
+    console.error("Add product error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -63,9 +61,9 @@ export const listProduct = async (req, res) => {
 export const removeProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productModel.findByIdAndDelete(id);
+    const deleted = await productModel.findByIdAndDelete(id);
 
-    if (!product) {
+    if (!deleted) {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
