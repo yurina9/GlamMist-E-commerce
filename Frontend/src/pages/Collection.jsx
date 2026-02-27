@@ -14,8 +14,10 @@ const Collection = () => {
   const [types, setTypes] = useState([]);
   const [sortType, setSortType] = useState("relevant");
 
+  // Convert text to lowercase for matching
   const normalize = (str) => (str ? str.toLowerCase().trim() : "");
 
+  // Toggle Brand
   const toggleBrand = (e) => {
     const value = normalize(e.target.value);
     setBrands((prev) =>
@@ -25,6 +27,7 @@ const Collection = () => {
     );
   };
 
+  // Toggle Type
   const toggleType = (e) => {
     const value = normalize(e.target.value);
     setTypes((prev) =>
@@ -34,11 +37,12 @@ const Collection = () => {
     );
   };
 
+  // Apply Filters
   const applyFilter = () => {
     let filtered = [...products];
 
     // Search filter
-    if (showSearch && search) {
+    if (showSearch && search.trim() !== "") {
       filtered = filtered.filter((item) =>
         normalize(item.name).includes(normalize(search))
       );
@@ -61,19 +65,27 @@ const Collection = () => {
     setFilterProducts(filtered);
   };
 
-  const sortProduct = (type) => {
-    let sorted = [...filterProducts];
+  // Sort Products
+  const sortProduct = (type, list) => {
+    let sorted = [...list];
     if (type === "low-high") sorted.sort((a, b) => a.price - b.price);
     else if (type === "high-low") sorted.sort((a, b) => b.price - a.price);
-    setFilterProducts(sorted);
+    return sorted;
   };
 
+  // Show all products when loaded
+  useEffect(() => {
+    setFilterProducts(products);
+  }, [products]);
+
+  // Apply filter when anything changes
   useEffect(() => {
     applyFilter();
   }, [brands, types, search, showSearch, products]);
 
+  // Apply sorting after filtering
   useEffect(() => {
-    sortProduct(sortType);
+    setFilterProducts((prev) => sortProduct(sortType, prev));
   }, [sortType]);
 
   return (
@@ -103,20 +115,26 @@ const Collection = () => {
           >
             <p className="mb-3 text-sm font-medium">BRANDS</p>
             <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-              {["dermaco", "mamaearth", "uvdoux", "technic", "cetaphil", "lagirl", "lotus"].map(
-                (brand) => (
-                  <label key={brand} className="flex gap-2 capitalize">
-                    <input
-                      type="checkbox"
-                      value={brand}
-                      onChange={toggleBrand}
-                      checked={brands.includes(brand)}
-                      className="w-3"
-                    />
-                    {brand}
-                  </label>
-                )
-              )}
+              {[
+                "dermaco",
+                "mamaearth",
+                "uvdoux",
+                "technic",
+                "cetaphil",
+                "lagirl",
+                "lotus",
+              ].map((brand) => (
+                <label key={brand} className="flex gap-2 capitalize">
+                  <input
+                    type="checkbox"
+                    value={brand}
+                    onChange={toggleBrand}
+                    checked={brands.includes(brand)}
+                    className="w-3"
+                  />
+                  {brand}
+                </label>
+              ))}
             </div>
           </div>
 
@@ -128,25 +146,30 @@ const Collection = () => {
           >
             <p className="mb-3 text-sm font-medium">TYPES</p>
             <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-              {["skincare", "makeup", "haircare", "body", "appliance", "accessories"].map(
-                (type) => (
-                  <label key={type} className="flex gap-2 capitalize">
-                    <input
-                      type="checkbox"
-                      value={type}
-                      onChange={toggleType}
-                      checked={types.includes(type)}
-                      className="w-3"
-                    />
-                    {type}
-                  </label>
-                )
-              )}
+              {[
+                "skincare",
+                "makeup",
+                "haircare",
+                "body",
+                "appliance",
+                "accessories",
+              ].map((type) => (
+                <label key={type} className="flex gap-2 capitalize">
+                  <input
+                    type="checkbox"
+                    value={type}
+                    onChange={toggleType}
+                    checked={types.includes(type)}
+                    className="w-3"
+                  />
+                  {type}
+                </label>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Product Display Section */}
+        {/* Product Section */}
         <div className="flex-1">
           <div className="flex justify-between text-base sm:text-2xl mb-4">
             <Title text1={"All"} text2={"COLLECTION"} />

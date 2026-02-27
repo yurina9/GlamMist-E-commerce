@@ -110,7 +110,7 @@ const ShopContextProvider = ({ children }) => {
         );
       } catch (err) {
         console.error(err);
-        toast.error("Failed to remove item");
+        // toast.error("Failed to remove item");
       }
     }
   };

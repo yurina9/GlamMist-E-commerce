@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
 
+// Add Product
 export const addProduct = async (req, res) => {
   try {
     const { name, description, price, type, brand, bestseller } = req.body;
@@ -14,23 +15,19 @@ export const addProduct = async (req, res) => {
 
     let imageUrls = await Promise.all(
       images.map(async (item) => {
-        try {
-          const result = await cloudinary.uploader.upload(item.path, {
-            resource_type: "image",
-          });
-          return result.secure_url;
-        } catch (err) {
-          console.error("Cloudinary upload failed:", err);
-          throw new Error("Failed to upload one or more images");
-        }
+        const result = await cloudinary.uploader.upload(item.path, {
+          resource_type: "image",
+        });
+        return result.secure_url;
       })
     );
 
+    // 🔹 Important Fix: save brand & type in lowercase
     const newProduct = new productModel({
       name,
       description,
-      type,
-      brand,
+      type: type.toLowerCase().trim(),
+      brand: brand.toLowerCase().trim(),
       price: Number(price),
       bestseller: bestseller === "true",
       image: imageUrls,
@@ -38,26 +35,30 @@ export const addProduct = async (req, res) => {
     });
 
     await newProduct.save();
-    res.json({ success: true, message: "Product added successfully", product: newProduct });
+
+    res.json({
+      success: true,
+      message: "Product added successfully",
+      product: newProduct,
+    });
   } catch (error) {
     console.error("Add product error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// List Products
 export const listProduct = async (req, res) => {
   try {
     const products = await productModel.find({});
-    if (products.length === 0) {
-      return res.status(404).json({ success: false, message: "No products found" });
-    }
-    res.json({ success: true, products });
+    res.json({ success: true, products }); // return even if empty
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// Remove Product
 export const removeProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,6 +75,7 @@ export const removeProduct = async (req, res) => {
   }
 };
 
+// Single Product
 export const singleProduct = async (req, res) => {
   try {
     const { id } = req.params;
