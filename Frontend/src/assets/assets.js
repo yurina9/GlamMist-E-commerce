@@ -23,6 +23,7 @@ import bannerglam from './banner.svg'
 import banner2 from './banner2.svg'
 import fs1 from './fs1.webp'
 import banner3 from './banner3.svg'
+import bnr from './bnr 3.svg'
 
 
 export const assets = {
@@ -49,5 +50,6 @@ export const assets = {
     logoglam,
     banner2,
     fs1,
-    banner3
+    banner3,
+    bnr,
 };

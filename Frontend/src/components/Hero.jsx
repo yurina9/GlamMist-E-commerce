@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 
 const Hero = () => {
-  const images = [assets.banner2,assets.banner3]; // your banner images
+  const images = [assets.banner2,assets.banner3,assets.bnr]; // your banner images
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
