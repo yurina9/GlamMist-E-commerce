@@ -10,10 +10,7 @@ import orderRouter from "./routes/orderRoute.js";
 
 // app config
 const app = express();
-const port = process.env.Port || 3000;
-
-connectDB();
-connectCloudinary();
+const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.json());
@@ -38,6 +35,17 @@ app.get("/", (req, res) => {
   res.send("working....");
 });
 
-app.listen(port, () => {
-  console.log("server started..." + port);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+    await connectCloudinary();
+    app.listen(port, () => {
+      console.log("server started..." + port);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();

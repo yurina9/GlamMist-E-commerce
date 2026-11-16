@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import esewa from "../assets/esewa.jpg";
@@ -48,6 +48,49 @@ const PlaceOrder = () => {
     }
 
     try {
+      if (method === "esewa") {
+        const response = await axios.post(
+          `${backendUrl}/api/order/esewa`,
+          { address: formData },
+          { headers: { token } },
+        );
+
+        if (!response.data.success) {
+          toast.error(response.data.message || "Could not start eSewa payment.");
+          return;
+        }
+
+        const paymentForm = document.createElement("form");
+        paymentForm.method = "POST";
+        paymentForm.action = response.data.paymentUrl;
+        Object.entries(response.data.paymentData).forEach(([name, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = name;
+          input.value = value;
+          paymentForm.appendChild(input);
+        });
+        document.body.appendChild(paymentForm);
+        paymentForm.submit();
+        return;
+      }
+
+      if (method === "khalti") {
+        const response = await axios.post(
+          `${backendUrl}/api/order/khalti`,
+          { address: formData },
+          { headers: { token } },
+        );
+
+        if (!response.data.success) {
+          toast.error(response.data.message || "Could not start Khalti payment.");
+          return;
+        }
+
+        window.location.assign(response.data.paymentUrl);
+        return;
+      }
+
       // Prepare order items
       const orderItems = [];
       for (const itemId in cartItems) {
@@ -182,20 +225,22 @@ const PlaceOrder = () => {
               { id: "esewa", image: esewa, color: "green" },
               { id: "khalti", image: khalti, color: "purple" },
               { id: "cod", label: "Cash on Delivery", color: "gray" },
-            ].map(({ id, image, label, color }) => (
-              <div
+            ].map(({ id, image, label }) => (
+              <label
                 key={id}
-                onClick={() => setMethod(id)}
-                className={`flex items-center gap-3 border p-3 px-4 cursor-pointer rounded-lg hover:shadow-lg ${
+                className={`flex items-center gap-3 border p-3 px-4 cursor-pointer rounded-lg transition-colors hover:shadow-lg ${
                   method === id
-                    ? `border-${color}-400 ring-2 ring-${color}-300`
-                    : ""
+                    ? "border-green-500 bg-green-50 ring-2 ring-green-200"
+                    : "border-gray-300"
                 }`}
               >
-                <div
-                  className={`w-4 h-4 border rounded-full ${
-                    method === id ? `bg-${color}-400` : ""
-                  }`}
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={id}
+                  checked={method === id}
+                  onChange={() => setMethod(id)}
+                  className="h-4 w-4 shrink-0 accent-green-600"
                 />
                 {image ? (
                   <div className="w-24 h-16 flex items-center justify-center border rounded-lg bg-white">
@@ -208,7 +253,7 @@ const PlaceOrder = () => {
                 ) : (
                   <p className="text-gray-500 text-sm font-medium mx-4">{label}</p>
                 )}
-              </div>
+              </label>
             ))}
           </div>
 

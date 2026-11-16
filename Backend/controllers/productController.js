@@ -42,8 +42,21 @@ export const addProduct = async (req, res) => {
       product: newProduct,
     });
   } catch (error) {
-    console.error("Add product error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    const providerMessage = error?.error?.message || error.message;
+    console.error("Add product upload failed:", {
+      message: providerMessage,
+      http_code: error.http_code,
+      name: error.name,
+    });
+
+    const message = error.http_code === 403
+      ? "Cloudinary denied the image upload. Verify the cloud name, API key, and API secret are from the same active Cloudinary account, then restart the backend."
+      : `Image upload failed: ${providerMessage}`;
+
+    res.status(error.http_code === 403 ? 502 : 500).json({
+      success: false,
+      message,
+    });
   }
 };
 

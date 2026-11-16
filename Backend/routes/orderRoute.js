@@ -3,6 +3,9 @@ import {
   placeOrder,
   placeOrderEsewa,
   placeOrderKhalti,
+  verifyEsewaPayment,
+  cancelEsewaPayment,
+  verifyKhaltiPayment,
   userOrders,
   allOrder,
   updateStatus,
@@ -19,7 +22,10 @@ orderRouter.post("/status", adminAuth, updateStatus);
 // payment feature
 orderRouter.post("/place", authUser, placeOrder);
 orderRouter.post("/khalti", authUser, placeOrderKhalti);
+orderRouter.post("/khalti/verify", authUser, verifyKhaltiPayment);
 orderRouter.post("/esewa", authUser, placeOrderEsewa);
+orderRouter.post("/esewa/verify", authUser, verifyEsewaPayment);
+orderRouter.post("/esewa/cancel", authUser, cancelEsewaPayment);
 
 //user feature
 orderRouter.post("/userorders", authUser, userOrders);

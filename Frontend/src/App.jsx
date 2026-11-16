@@ -2,7 +2,6 @@
 import { Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import './index.css'
-import React from 'react'
 import Home from './pages/Home'
 import About from './pages/About'
 import Collection from './pages/Collection'
@@ -10,6 +9,8 @@ import Login from './pages/Login'
 import Orders from './pages/Orders'
 import Product from './pages/Product'
 import PlaceOrder from './pages/PlaceOrder'
+import EsewaCallback from './pages/EsewaCallback'
+import KhaltiCallback from './pages/KhaltiCallback'
 import Contact from './pages/Contact'
 import Cart from './pages/Cart'
 import Footer from './components/Footer'
@@ -29,6 +30,8 @@ const App = () => {
         <Route path='/orders' element={<Orders/>} />
         <Route path='/product/:productId' element={<Product />} />
         <Route path='place-orders' element={<PlaceOrder/>} />
+        <Route path='/payment/esewa/callback' element={<EsewaCallback />} />
+        <Route path='/payment/khalti/callback' element={<KhaltiCallback />} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/cart' element={<Cart/>} />
       </Routes>

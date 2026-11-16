@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { verifyToken } from "../utils/jwt.js";
 
 const adminAuth = async (req, res, next) => {
   try {
@@ -10,8 +10,11 @@ const adminAuth = async (req, res, next) => {
         message: "Not Authorized  login again",
       });
     }
-    const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-    if (token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
+    const token_decode = await verifyToken(token);
+    if (
+      token_decode.admin !== true ||
+      token_decode.email !== process.env.ADMIN_EMAIL
+    ) {
       return res.json({
         success: false,
         message: "Not Authorized  login again",
